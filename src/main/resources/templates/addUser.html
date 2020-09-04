@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<title> Add User </title>
+<head>
+    <meta charset="UTF-8">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.1.3/simplex/bootstrap.min.css"
+          rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic"
+          rel="stylesheet" type="text/css">
+    <title>Add User</title>
+</head>
+<body>
+<form method="post" action="addUser" th:object="${user}">
+    <div class="Users" style="width:500px; margin:auto;">
+        <div class="card-header" align="center"> New User Form</div>
+        <div class="card-body">
+            <label for="name">Name</label>
+            <span class="form-group">
+                        <input type="text" name="name" th:field="*{username}" id="name" class="form-control "/>
+            </span>
+            <label for="name">Lastname</label>
+            <span class="form-group">
+                        <input type="text" lastname="name" th:field="*{lastname}" id="lastname" class="form-control "/>
+            </span>
+            <label for="Password">Password</label>
+            <span class="form-group">
+                        <input type="password" lastname="Password" th:field="*{password}" id="Password"
+                               class="form-control "/>
+            </span>
+            <label for="email">Email</label>
+            <span class="form-group">
+                        <input type="email" name="email" th:field="*{email}" id="email" class="form-control "/>
+            </span>
+            <span class="form-group">
+                <div class="checkbox">
+                        <label>ADMIN</label>
+                        <input type="checkbox" th:checked="${ifHaveAdmin} ? 'checked'" name="ifHaveAdmin"/>
+                    </div>
+                    <div class="checkbox">
+                        <label>USER</label>
+                        <input type="checkbox" th:checked="${ifHaveUser} ? 'checked'" name="ifHaveUser"/>
+                    </div>
+            </span>
+        </div>
+        <div class="card-footer">
+            <input type="submit" value="Submit"/>
+            <input type="reset" value="Reset"/>
+        </div>
+    </div>
+</form>
+
+<script src="vendor/jquery/jquery.min.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
