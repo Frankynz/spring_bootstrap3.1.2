@@ -26,14 +26,6 @@ public class UserController {
 	public String userHomePage(Model model, Principal principal) {
 		User user = (User) userService.loadUserByUsername(principal.getName());
 		model.addAttribute("user", user);
-		return "helloUser";
+		return "user";
 	}
-
-	@GetMapping("/")
-	public String myHome(Model model) {
-		return "home";
-	}
-
-
-
 }

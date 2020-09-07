@@ -38,10 +38,10 @@ public class UserDAO implements DAO {
     }
 
     @Override
-    public User findUserByUsername(String username) {
+    public User findUserByUsername(String email) {
         return entityManager
-                .createQuery("SELECT u FROM User u WHERE u.username = :username", User.class)
-                .setParameter("username", username).setMaxResults(1)
+                .createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
+                .setParameter("email", email).setMaxResults(1)
                 .getSingleResult();
     }
 }

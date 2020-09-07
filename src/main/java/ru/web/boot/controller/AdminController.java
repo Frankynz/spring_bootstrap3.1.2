@@ -8,6 +8,7 @@ import ru.web.boot.model.Role;
 import ru.web.boot.model.User;
 import ru.web.boot.service.UserService;
 
+import java.security.Principal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,89 +28,61 @@ public class AdminController {
     }
 
     @GetMapping("")
-    public String userList(Model model) {
-        model.addAttribute("users", userService.getAllUsers());
+    public String getAdminPage(Model model, Principal principal) {
+        User user = (User) userService.loadUserByUsername(principal.getName());
+        List<User> users = userService.getAllUsers();
+        model.addAttribute("users", users);
+        model.addAttribute("user", user);
+        model.addAttribute("newUser", new User());
         return "admin";
-    }
-
-    @PostMapping("")
-    public String deleteUser(@RequestParam(required = true, defaultValue = "") Long userId,
-                             @RequestParam(required = true, defaultValue = "") String action,
-                             Model model) {
-        if (action.equals("delete")) {
-            userService.deleteUserById(userId);
-        }
-        return "redirect:/admin";
-    }
-
-    @GetMapping("addUser")
-    public String addUser(Model model) {
-        model.addAttribute("user", new User());
-        boolean ifHaveAdmin = false;
-        boolean ifHaveUser = false;
-        model.addAttribute("ifHaveAdmin", ifHaveAdmin);
-        model.addAttribute("ifHaveUser", ifHaveUser);
-        return "addUser";
     }
 
     @PostMapping("addUser")
     public String saveUserFromForm(@ModelAttribute("user") User user,
-                                   @RequestParam(value = "ifHaveAdmin", required = false) boolean adminRole,
-                                   @RequestParam(value = "ifHaveUser", required = false) boolean userRole) {
-        user.setRoles(setRolesInController(adminRole, userRole));
+                                    @RequestParam(value = "checkRoles", required = false) String userRole){
+        user.setRoles(setRolesInController(userRole));
         userService.saveUser(user);
-        ;
-        return "redirect:allUsers";
+        return "redirect:";
     }
 
-    @GetMapping("delete/{id}")
+    @PostMapping("delete/{id}")
     public String deleteUserController(@PathVariable long id) {
         userService.deleteUserById(id);
-        return "redirect:/admin/allUsers";
-    }
-
-    @GetMapping("edit/{id}")
-    public String editUserController(@PathVariable long id, Model model) {
-        User user = userService.getUserById(id);
-        model.addAttribute("user", user);
-        boolean ifHaveAdmin = false;
-        boolean ifHaveUser = false;
-        for (Role role : user.getRoles()) {
-            if (role.getName().equals("ROLE_ADMIN")) {
-                ifHaveAdmin = true;
-            }
-            if (role.getName().equals("ROLE_USER")) {
-                ifHaveUser = true;
-            }
-        }
-        model.addAttribute("ifHaveAdmin", ifHaveAdmin);
-        model.addAttribute("ifHaveUser", ifHaveUser);
-        return "editUser";
+        return "redirect:/admin/";
     }
 
     @PostMapping("edit/{id}")
-    public String editUserController(@ModelAttribute("user") User user,
-                                     @RequestParam(value = "ifHaveAdmin", required = false) boolean adminRole,
-                                     @RequestParam(value = "ifHaveUser", required = false) boolean userRole) {
-        user.setRoles(setRolesInController(adminRole, userRole));
-        userService.updateUser(user);
-        return "redirect:/admin/allUsers";
-    }
-
-    @GetMapping("allUsers")
-    public String listController(Model model) {
-        List<User> users = userService.getAllUsers();
-        model.addAttribute("users", users);
-        return "allUsers";
-    }
-
-    public Set<Role> setRolesInController(boolean adminRole, boolean userRole) {
-        Set<Role> roles = new HashSet<>();
-        if (adminRole) {
-            roles.add(new Role(1L, "ROLE_ADMIN"));
+    public String editUserController(@PathVariable long id,
+                                     @ModelAttribute("newUser") User user,
+                                     @RequestParam(value = "editFirstname"  ,  required = false) String firstname    ,
+                                     @RequestParam(value = "editLastname"   ,  required = false) String lastname    ,
+                                     @RequestParam(value = "editEmail"      ,  required = false) String email       ,
+                                     @RequestParam(value = "editPassword"   ,  required = false) String password    ,
+                                     @RequestParam(value = "checkRoles"     ,  required = false) String checkRoles){
+        user.setRoles(setRolesInController(checkRoles));
+        user.setId(id);
+        System.out.println("**********"+firstname);
+        user.setFirstname(firstname);
+        user.setLastname(lastname);
+        user.setEmail(email);
+        if (password.isEmpty()){
+            user.setPassword(userService.getUserById(id).getPassword());
+        } else {
+            user.setPassword(password);
         }
-        if (userRole) {
-            roles.add(new Role(2L, "ROLE_USER"));
+        userService.updateUser(user);
+        return "redirect:/admin/";
+    }
+
+    public Set<Role> setRolesInController(String checkRoles) {
+        Set<Role> roles = new HashSet<>();
+        if (checkRoles != null){
+            if (checkRoles.contains("ADMIN")) {
+                roles.add(new Role(1L, "ROLE_ADMIN"));
+            }
+            if (checkRoles.contains("USER")) {
+                roles.add(new Role(2L, "ROLE_USER"));
+            }
         }
         return roles;
     }
